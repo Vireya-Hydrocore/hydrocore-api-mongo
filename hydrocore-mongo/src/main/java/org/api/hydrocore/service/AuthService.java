@@ -1,6 +1,5 @@
 package org.api.hydrocore.service;
 
-import lombok.RequiredArgsConstructor;
 import org.api.hydrocore.JwtUtil;
 import org.api.hydrocore.model.User;
 import org.api.hydrocore.repository.UserRepository;
@@ -8,25 +7,24 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
+    private final EmailService emailService;
 
-    public AuthService(UserRepository userRepository, RedisTemplate<String, String> redisTemplate, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.redisTemplate = redisTemplate;
-        this.jwtUtil = jwtUtil;
-    }
+     public AuthService(UserRepository userRepository, RedisTemplate<String, String> redisTemplate, JwtUtil jwtUtil, EmailService emailService) {
+         this.userRepository = userRepository;
+         this.redisTemplate = redisTemplate;
+         this.jwtUtil = jwtUtil;
+         this.emailService = emailService;
+     }
 
-    // LOGIN
     public String login(String email, String password, String codigoEmpresa) {
-        System.out.println("Tentando login com email: " + email + " senha: "+ password + ", empresa: " + codigoEmpresa);
 
         User user = userRepository.findByEmailAndCodigoEmpresa(email, codigoEmpresa)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -40,19 +38,16 @@ public class AuthService {
         return token;
     }
 
-    // ESQUECEU SENHA
-        public void forgotPassword(String email) {
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public void forgotPassword(String email, String codigoEmpresa) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-            String token = UUID.randomUUID().toString();
-            redisTemplate.opsForValue().set("reset:" + token, email, Duration.ofMinutes(15));
+        String token = jwtUtil.generateTokenWithExpiration(email, 15 * 60 * 1000); // 15 minutos
+        redisTemplate.opsForValue().set("reset:" + token, email, Duration.ofMinutes(15));
 
-            // Aqui você mandaria por e-mail — mas vamos simular no log:
-            System.out.println("Token de redefinição: " + token);
-        }
+        emailService.sendResetPasswordEmail(email, token);
+    }
 
-    // REDEFINIR SENHA
     public void resetPassword(String token, String newPassword) {
         String email = redisTemplate.opsForValue().get("reset:" + token);
         if (email == null) throw new RuntimeException("Token inválido ou expirado");
@@ -65,10 +60,16 @@ public class AuthService {
 
         redisTemplate.delete("reset:" + token);
     }
-//
-//    // LOGOUT
+
+
     public void logout(String token) {
-        redisTemplate.delete("session:" + token);
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        String email = jwtUtil.extractEmail(token);
+        long expirationMillis = jwtUtil.getRemainingExpiration(token);
+
+        redisTemplate.opsForValue().set("blacklist:" + token, email, expirationMillis, TimeUnit.MILLISECONDS);
     }
 }
-
