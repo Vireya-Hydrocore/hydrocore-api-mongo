@@ -1,0 +1,78 @@
+# -------------------------------
+# SERVER CONFIGURATION
+# -------------------------------
+server:
+  port: 8080
+
+spring:
+  application:
+    name: hydrocore-mongo
+
+  # -------------------------------
+  # MONGODB CONFIGURATION
+  # -------------------------------
+  data:
+    mongodb:
+      uri: ${MONGO_URL}
+      database: ${MONGO_DATABASE}
+
+    # -------------------------------
+    # REDIS CONFIGURATION
+    # -------------------------------
+    redis:
+      host: ${REDIS_HOST}
+      port: 17128
+      password: ${REDIS_PASSWORD}
+      timeout: 60000ms
+      ssl:
+        enabled: true
+
+  # -------------------------------
+  # MAIL CONFIGURATION
+  # -------------------------------
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${USER_EMAIL}
+    password: ${USER_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# -------------------------------
+# SPRING SECURITY (CUSTOM LOGIN)
+# -------------------------------
+  main:
+    allow-bean-definition-overriding: true
+
+# -------------------------------
+# JWT CONFIGURATION
+# -------------------------------
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 3600000
+
+# -------------------------------
+# LOGGING
+# -------------------------------
+logging:
+  level:
+    # INFO level logs
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: INFO
+          redis:
+            core:
+              RedisTemplate: INFO
+        security: INFO
+      mongodb:
+        driver: DEBUG
+
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.web: DEBUG
