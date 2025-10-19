@@ -21,7 +21,7 @@ spring:
     # -------------------------------
     redis:
       host: ${REDIS_HOST}
-      port: 17128
+      port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
       timeout: 60000ms
       ssl:
