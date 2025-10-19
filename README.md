@@ -2,7 +2,7 @@
 
 ###
 
-<p align="left">Esse projeto foi desenvolvido por alunos do Instituto J&F, do curso Germinare Tech. Vireya é um projeto  que tem a proposta de simplificar e ajudar no gerenciamento de ETAs (Empresas de Tratamento de Água) e diminuir erros humanos. Trazendo soluções a problemas reais dentro de ETAs desde superdosagem ou subdosagem até o gerenciamento de estoque e geração de relatórios exigidos por lei e periódicos. Esta versão da API utiliza o **MongoDB** como banco de dados NoSQL.</p>
+<p align="left">Esse projeto foi desenvolvido por alunos do Instituto J&F, do curso Germinare Tech. Vireya é um projeto  que tem a proposta de simplificar e ajudar no gerenciamento de ETAs (Empresas de Tratamento de Água) e diminuir erros humanos. Trazendo soluções a problemas reais dentro de ETAs desde superdosagem ou subdosagem até o gerenciamento de estoque e geração de relatórios exigidos por lei e periódicos. Esta versão da API utiliza o MongoDB como banco de dados NoSQL.</p>
 
 ###
 
@@ -22,7 +22,7 @@
 
 ###
 
-<p align="left">- Java 17<br>- Git<br>- Docker (Necessário apenas para o build e deploy final)<br>- **Acesso ao MongoDB Atlas** (Ou a instância de MongoDB configurada no <code>.env</code>)</p>
+<p align="left">- Java 17<br>- Git<br>- Docker (Necessário apenas para o build e deploy final)
 
 ###
 
@@ -31,18 +31,11 @@
 ###
 
 ```bash
-# Clone o projeto (assumindo o nome do repositório)
-$ git clone [https://github.com/Vireya-Hydrocore/hydrocore-api-mongo.git](https://github.com/Vireya-Hydrocore/hydrocore-api-mongo.git)
-cd hydrocore-api-mongo
-
-# Certifique-se de que o arquivo .env está configurado com as credenciais do MongoDB e Redis
+# Clone o repositório
+$ git clone https://github.com/Vireya-Hydrocore/hydrocore-api-mongo.git
 
 # Limpe e instale as dependências
 $ mvn clean install
-
-# Execute a aplicação
-# Nota: O Spring Boot fará a conexão direta com o MONGO_URL definido no seu .env
-$ mvn spring-boot:run
 
 ````
 ###
@@ -55,7 +48,7 @@ http://localhost:8080/swagger-ui/index.html
 
 | Documentação             | Links                                                                                |
 |--------------------------|--------------------------------------------------------------------------------------|
-| Hydrocore-Api-Mongo-prod | [Swagger PROD](https://hydrocore-api-mongo-prod.onrender.com/swagger-ui/index.html#/) |
+| Hydrocore-Api-Mongo-prod | [Swagger PROD](https://hydrocore-api-mongo.onrender.com/swagger-ui/index.html#/) |
 
 ###
 
