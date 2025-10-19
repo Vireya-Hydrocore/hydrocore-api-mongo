@@ -1,0 +1,87 @@
+package org.api.hydrocore.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.api.hydrocore.dto.ForgotPasswordRequest;
+import org.api.hydrocore.dto.LoginRequest;
+import org.api.hydrocore.dto.ResetPasswordRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RequestMapping("/auth")
+@Tag(name = "Autenticação", description = "Endpoints de autenticação e gerenciamento de sessão")
+public interface AuthController {
+
+    class TokenResponse {
+        public String token;
+    }
+
+    class MessageResponse {
+        public String message;
+    }
+
+    // -------------------------------------------------------------------------
+    // LOGIN
+    // -------------------------------------------------------------------------
+
+    @PostMapping("/login")
+    @Operation(summary = "Login do usuário", description = "Autentica o usuário e retorna um token JWT")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Login bem-sucedido, retorna o token JWT",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas (usuário/senha/código empresa)",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)))
+    })
+    ResponseEntity<String> login(@RequestBody LoginRequest request);
+
+    // -------------------------------------------------------------------------
+    // FORGOT PASSWORD
+    // -------------------------------------------------------------------------
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Esqueci minha senha", description = "Envia um e-mail de recuperação de senha para o usuário")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "E-mail de recuperação enviado com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado."),
+            @ApiResponse(responseCode = "500", description = "Erro no serviço de envio de e-mail.")
+    })
+    ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequest request);
+
+    // -------------------------------------------------------------------------
+    // RESET PASSWORD
+    // -------------------------------------------------------------------------
+    @PostMapping("/reset-password")
+    @Operation(summary = "Redefinir senha", description = "Permite redefinir a senha usando o token recebido por e-mail")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Senha redefinida com sucesso",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponse.class))),
+            @ApiResponse(responseCode = "400", description = "As senhas não coincidem ou Token inválido/expirado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)))
+    })
+    ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request);
+
+    // -------------------------------------------------------------------------
+    // LOGOUT
+    // -------------------------------------------------------------------------
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout", description = "Invalida o token JWT do usuário atual")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Logout realizado com sucesso",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido no cabeçalho 'Authorization'")
+    })
+    ResponseEntity<?> logout(@RequestHeader("Authorization") String token);
+
+}
