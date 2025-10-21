@@ -6,12 +6,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.api.hydrocore.dto.ForgotPasswordRequest;
 import org.api.hydrocore.dto.LoginRequest;
 import org.api.hydrocore.dto.ResetPasswordRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RequestMapping("/auth")
@@ -40,7 +42,7 @@ public interface AuthController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)))
     })
-    ResponseEntity<String> login(@RequestBody LoginRequest request);
+    ResponseEntity<String> login(@RequestBody @Valid LoginRequest request);
 
     // -------------------------------------------------------------------------
     // FORGOT PASSWORD
@@ -53,7 +55,7 @@ public interface AuthController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado."),
             @ApiResponse(responseCode = "500", description = "Erro no serviço de envio de e-mail.")
     })
-    ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequest request);
+    ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws IOException;
 
     // -------------------------------------------------------------------------
     // RESET PASSWORD
@@ -68,7 +70,7 @@ public interface AuthController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)))
     })
-    ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request);
+    ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordRequest request);
 
     // -------------------------------------------------------------------------
     // LOGOUT
