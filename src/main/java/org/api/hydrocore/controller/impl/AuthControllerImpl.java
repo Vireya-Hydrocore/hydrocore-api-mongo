@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -31,7 +32,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     public ResponseEntity<Void> forgotPassword(@Valid ForgotPasswordRequest request) {
-        authService.forgotPassword(request.getEmail(), request.getCodigoEmpresa());
+        authService.forgotPassword(request.getEmail());
         return ResponseEntity.ok().build();
     }
 

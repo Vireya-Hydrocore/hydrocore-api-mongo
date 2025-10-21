@@ -6,6 +6,7 @@ import org.api.hydrocore.repository.UserRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -38,11 +39,11 @@ public class AuthService {
         return token;
     }
 
-    public void forgotPassword(String email, String codigoEmpresa) {
+    public void forgotPassword(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        String token = jwtUtil.generateTokenWithExpiration(email, 15 * 60 * 1000); // 15 minutos
+        String token = jwtUtil.generateTokenWithExpiration(email, 15 * 60 * 1000);
         redisTemplate.opsForValue().set("reset:" + token, email, Duration.ofMinutes(15));
 
         emailService.sendResetPasswordEmail(email, token);
