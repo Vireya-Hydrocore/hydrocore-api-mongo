@@ -15,13 +15,15 @@ public class User {
     @Field(name = "senha")
     private String password;
     private String codigoEmpresa;
+    private String fcmToken;
 
 
-    public User(String id, String email, String password, String codigoEmpresa) {
+    public User(String id, String email, String password, String codigoEmpresa, String fcmToken) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.codigoEmpresa = codigoEmpresa;
+        this.fcmToken = fcmToken;
     }
 
     public String getId() {
@@ -54,4 +56,11 @@ public class User {
         this.codigoEmpresa = codigoEmpresa;
     }
 
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
 }

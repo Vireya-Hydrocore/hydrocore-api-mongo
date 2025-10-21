@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.api.hydrocore.dto.ForgotPasswordRequest;
 import org.api.hydrocore.dto.LoginRequest;
 import org.api.hydrocore.dto.ResetPasswordRequest;
+import org.api.hydrocore.dto.TokenFcmRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,5 +86,22 @@ public interface AuthController {
             @ApiResponse(responseCode = "401", description = "Token ausente ou inválido no cabeçalho 'Authorization'")
     })
     ResponseEntity<?> logout(@RequestHeader("Authorization") String token);
+
+
+
+    // -------------------------------------------------------------------------
+    // SALVAR TOKEN FCM
+    // -------------------------------------------------------------------------
+    @PostMapping("/fcm")
+    @Operation(summary = "Registrar token FCM", description = "Registra o token FCM do dispositivo para o usuário autenticado")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Token salvo com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Token inválido"),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+    })
+    ResponseEntity<?> salvarFcmToken(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody @Valid TokenFcmRequest request);
+
 
 }
