@@ -1,4 +1,4 @@
-package org.api.hydrocore.dto;
+package org.api.hydrocore.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 

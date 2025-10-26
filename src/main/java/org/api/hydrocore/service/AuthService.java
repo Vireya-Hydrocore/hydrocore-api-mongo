@@ -1,6 +1,8 @@
 package org.api.hydrocore.service;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.api.hydrocore.JwtUtil;
+import org.api.hydrocore.dto.response.LoginResponse;
 import org.api.hydrocore.model.User;
 import org.api.hydrocore.repository.UserRepository;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,8 +26,7 @@ public class AuthService {
         this.emailService = emailService;
     }
 
-    public String login(String email, String password, String codigoEmpresa) {
-
+    public LoginResponse login(String email, String password, String codigoEmpresa) {
         User user = userRepository.findByEmailAndCodigoEmpresa(email, codigoEmpresa)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -35,10 +36,16 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(email);
         redisTemplate.opsForValue().set("session:" + token, email, Duration.ofHours(2));
-        return token;
+
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(token);
+        loginResponse.setChaveApi(user.getChaveApi());
+
+        return loginResponse;
+
     }
 
-    public void forgotPassword(String email) {
+    public void forgotPassword(String email) throws UnirestException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 

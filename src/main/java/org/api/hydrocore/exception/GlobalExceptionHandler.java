@@ -1,5 +1,6 @@
 package org.api.hydrocore.exception;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,5 +40,16 @@ public class GlobalExceptionHandler {
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
+
+    @ExceptionHandler(UnirestException.class)
+    public ResponseEntity<Map<String, Object>> handleUnirestException(UnirestException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("error", "Erro ao enviar e-mail via Mailgun");
+        body.put("details", ex.getMessage());
+        body.put("status", HttpStatus.BAD_GATEWAY.value()); // 502
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
+    }
+
 }
 

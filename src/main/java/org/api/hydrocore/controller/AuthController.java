@@ -1,5 +1,6 @@
 package org.api.hydrocore.controller;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -7,10 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.api.hydrocore.dto.ForgotPasswordRequest;
-import org.api.hydrocore.dto.LoginRequest;
-import org.api.hydrocore.dto.ResetPasswordRequest;
-import org.api.hydrocore.dto.TokenFcmRequest;
+import org.api.hydrocore.dto.request.ForgotPasswordRequest;
+import org.api.hydrocore.dto.request.LoginRequest;
+import org.api.hydrocore.dto.request.ResetPasswordRequest;
+import org.api.hydrocore.dto.request.TokenFcmRequest;
+import org.api.hydrocore.dto.response.LoginResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +22,6 @@ import java.util.Map;
 @RequestMapping("/auth")
 @Tag(name = "Autenticação", description = "Endpoints de autenticação e gerenciamento de sessão")
 public interface AuthController {
-
-    class TokenResponse {
-        public String token;
-    }
 
     class MessageResponse {
         public String message;
@@ -38,12 +36,12 @@ public interface AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Login bem-sucedido, retorna o token JWT",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TokenResponse.class))),
+                            schema = @Schema(implementation = LoginResponse.class))),
             @ApiResponse(responseCode = "401", description = "Credenciais inválidas (usuário/senha/código empresa)",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)))
     })
-    ResponseEntity<String> login(@RequestBody @Valid LoginRequest request);
+    ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request);
 
     // -------------------------------------------------------------------------
     // FORGOT PASSWORD
@@ -56,7 +54,7 @@ public interface AuthController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado."),
             @ApiResponse(responseCode = "500", description = "Erro no serviço de envio de e-mail.")
     })
-    ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws IOException;
+    ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws IOException, UnirestException;
 
     // -------------------------------------------------------------------------
     // RESET PASSWORD
