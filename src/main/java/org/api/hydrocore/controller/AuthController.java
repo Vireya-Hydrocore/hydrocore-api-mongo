@@ -11,50 +11,52 @@ import jakarta.validation.Valid;
 import org.api.hydrocore.dto.request.ForgotPasswordRequest;
 import org.api.hydrocore.dto.request.LoginRequest;
 import org.api.hydrocore.dto.request.ResetPasswordRequest;
-import org.api.hydrocore.dto.request.TokenFcmRequest;
+import org.api.hydrocore.dto.response.ApiResponseDTO;
 import org.api.hydrocore.dto.response.LoginResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RequestMapping("/auth")
 @Tag(name = "Autenticação", description = "Endpoints de autenticação e gerenciamento de sessão")
 public interface AuthController {
 
-    class MessageResponse {
-        public String message;
-    }
-
     // -------------------------------------------------------------------------
     // LOGIN
     // -------------------------------------------------------------------------
-
     @PostMapping("/login")
     @Operation(summary = "Login do usuário", description = "Autentica o usuário e retorna um token JWT")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Login bem-sucedido, retorna o token JWT",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = LoginResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Credenciais inválidas (usuário/senha/código empresa)",
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Map.class)))
+                            schema = @Schema(implementation = ApiResponse.class)))
     })
     ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request);
 
     // -------------------------------------------------------------------------
     // FORGOT PASSWORD
     // -------------------------------------------------------------------------
-
     @PostMapping("/forgot-password")
     @Operation(summary = "Esqueci minha senha", description = "Envia um e-mail de recuperação de senha para o usuário")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "E-mail de recuperação enviado com sucesso."),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado."),
-            @ApiResponse(responseCode = "500", description = "Erro no serviço de envio de e-mail.")
+            @ApiResponse(responseCode = "200", description = "E-mail de recuperação enviado com sucesso",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Erro no serviço de envio de e-mail",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class)))
     })
-    ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws IOException, UnirestException;
+    ResponseEntity<ApiResponseDTO<Void>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws IOException, UnirestException;
 
     // -------------------------------------------------------------------------
     // RESET PASSWORD
@@ -64,42 +66,26 @@ public interface AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Senha redefinida com sucesso",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MessageResponse.class))),
+                            schema = @Schema(implementation = ApiResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "As senhas não coincidem ou Token inválido/expirado",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Map.class)))
+                            schema = @Schema(implementation = ApiResponseDTO.class)))
     })
-    ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordRequest request);
+    ResponseEntity<ApiResponseDTO<Void>> resetPassword(@RequestBody @Valid ResetPasswordRequest request);
 
     // -------------------------------------------------------------------------
     // LOGOUT
     // -------------------------------------------------------------------------
-
     @PostMapping("/logout")
     @Operation(summary = "Logout", description = "Invalida o token JWT do usuário atual")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Logout realizado com sucesso",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MessageResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido no cabeçalho 'Authorization'")
+                            schema = @Schema(implementation = ApiResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido no cabeçalho 'Authorization'",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class)))
     })
-    ResponseEntity<?> logout(@RequestHeader("Authorization") String token);
-
-
-
-    // -------------------------------------------------------------------------
-    // SALVAR TOKEN FCM
-    // -------------------------------------------------------------------------
-    @PostMapping("/fcm")
-    @Operation(summary = "Registrar token FCM", description = "Registra o token FCM do dispositivo para o usuário autenticado")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Token salvo com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Token inválido"),
-            @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
-    })
-    ResponseEntity<?> salvarFcmToken(
-            @RequestHeader("Authorization") String authorization,
-            @RequestBody @Valid TokenFcmRequest request);
-
+    ResponseEntity<ApiResponseDTO<Void>> logout(@RequestHeader("Authorization") String token);
 
 }

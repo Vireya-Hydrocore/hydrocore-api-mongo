@@ -7,6 +7,9 @@ server:
 spring:
   application:
     name: hydrocore-mongo
+  devtools:
+    restart:
+      enabled: false
 
   # -------------------------------
   # MONGODB CONFIGURATION

@@ -20,7 +20,6 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    // 🔐 Gera a chave HMAC a partir da secret configurada
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
@@ -57,7 +56,6 @@ public class JwtUtil {
             return claims.getSubject();
         } catch (Exception e) {
             // ⚠️ Evita crash e mostra erro detalhado no log
-            System.err.println("Falha ao validar ou extrair e-mail do JWT: " + e.getMessage());
             throw new RuntimeException("Authentication failed");
         }
     }
@@ -72,4 +70,5 @@ public class JwtUtil {
 
         return expirationDate.getTime() - System.currentTimeMillis();
     }
+
 }
