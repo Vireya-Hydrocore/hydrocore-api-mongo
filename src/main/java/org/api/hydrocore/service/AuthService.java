@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -35,7 +36,8 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(email);
-        redisTemplate.opsForValue().set("session:" + token, email, Duration.ofHours(2));
+
+        redisTemplate.opsForValue().set("token:" + email, "Bearer " + token, Duration.ofHours(2));
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(token);
@@ -45,27 +47,26 @@ public class AuthService {
 
     }
 
-    public void forgotPassword(String email) throws UnirestException {
+    public void forgotPassword(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         String token = jwtUtil.generateTokenWithExpiration(email, 15 * 60 * 1000);
-        redisTemplate.opsForValue().set("reset:" + token, email, Duration.ofMinutes(15));
+        redisTemplate.opsForValue().set("reset:" + email, "Bearer " + token, Duration.ofMinutes(15));
 
-        emailService.sendResetPasswordEmail(email, token);
+        emailService.sendResetCode(email, token);
+
     }
 
-    public void resetPassword(String token, String newPassword) {
-        String email = redisTemplate.opsForValue().get("reset:" + token);
-        if (email == null) throw new RuntimeException("Token inválido ou expirado");
+    public void resetPassword(String email, String newPassword) {
+        String token = redisTemplate.opsForValue().get("reset:" + email);
+        if (token == null) throw new RuntimeException("Email inválido ou expirado");
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         user.setPassword(newPassword);
         userRepository.save(user);
-
-        redisTemplate.delete("reset:" + token);
     }
 
 
@@ -78,23 +79,8 @@ public class AuthService {
         long expirationMillis = jwtUtil.getRemainingExpiration(token);
 
         redisTemplate.opsForValue().set("blacklist:" + token, email, expirationMillis, TimeUnit.MILLISECONDS);
+
+        redisTemplate.delete("token:" + email);
     }
 
-    public void salvarFcmToken(String authorizationHeader, String fcmToken) {
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new SecurityException("Authorization header inválido");
-        }
-        String jwt = authorizationHeader.substring(7).trim();
-        String email = jwtUtil.extractEmail(jwt);
-
-        if (email == null || email.isBlank()) {
-            throw new SecurityException("Token inválido ou usuário não encontrado");
-        }
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-        user.setFcmToken(fcmToken);
-        userRepository.save(user);
-    }
 }
