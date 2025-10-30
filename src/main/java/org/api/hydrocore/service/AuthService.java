@@ -43,7 +43,7 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(email);
 
-        redisTemplate.opsForValue().set("token:" + email, "Bearer " + token, Duration.ofHours(2));
+        redisTemplate.opsForValue().set("token:" + email, token, Duration.ofHours(2));
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(token);
