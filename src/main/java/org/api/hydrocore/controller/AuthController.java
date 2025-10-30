@@ -56,7 +56,7 @@ public interface AuthController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponse.class)))
     })
-    ResponseEntity<ApiResponseDTO<Void>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws IOException, UnirestException;
+    ResponseEntity<ApiResponseDTO> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws IOException, UnirestException;
 
     // -------------------------------------------------------------------------
     // RESET PASSWORD
@@ -71,7 +71,7 @@ public interface AuthController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class)))
     })
-    ResponseEntity<ApiResponseDTO<Void>> resetPassword(@RequestBody @Valid ResetPasswordRequest request);
+    ResponseEntity<ApiResponseDTO> resetPassword(@RequestBody @Valid ResetPasswordRequest request);
 
     // -------------------------------------------------------------------------
     // LOGOUT
@@ -86,6 +86,6 @@ public interface AuthController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class)))
     })
-    ResponseEntity<ApiResponseDTO<Void>> logout(@RequestHeader("Authorization") String token);
+    ResponseEntity<ApiResponseDTO> logout(@RequestHeader("Authorization") String token);
 
 }

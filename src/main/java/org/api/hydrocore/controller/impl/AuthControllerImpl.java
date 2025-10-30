@@ -31,13 +31,13 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    public ResponseEntity<ApiResponseDTO<Void>> forgotPassword(@Valid ForgotPasswordRequest request) throws UnirestException {
+    public ResponseEntity<ApiResponseDTO> forgotPassword(@Valid ForgotPasswordRequest request) throws UnirestException {
         authService.forgotPassword(request.getEmail());
         return ResponseEntity.ok(ApiResponseDTO.ok("E-mail de recuperação enviado com sucesso"));
     }
 
     @Override
-    public ResponseEntity<ApiResponseDTO<Void>> resetPassword(@Valid ResetPasswordRequest request) {
+    public ResponseEntity<ApiResponseDTO> resetPassword(@Valid ResetPasswordRequest request) {
         if (!request.getNovaSenha().equals(request.getConfirmaSenha())) {
             throw new IllegalArgumentException("As senhas não coincidem");
         }
@@ -47,7 +47,7 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    public ResponseEntity<ApiResponseDTO<Void>> logout(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponseDTO> logout(@RequestHeader("Authorization") String token) {
         authService.logout(token);
         return ResponseEntity.ok(ApiResponseDTO.ok("Logout realizado com sucesso"));
     }

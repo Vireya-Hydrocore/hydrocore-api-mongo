@@ -5,6 +5,10 @@ import org.api.hydrocore.JwtUtil;
 import org.api.hydrocore.dto.response.LoginResponse;
 import org.api.hydrocore.model.User;
 import org.api.hydrocore.repository.UserRepository;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +23,14 @@ public class AuthService {
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final MongoTemplate mongoTemplate;
 
-    public AuthService(UserRepository userRepository, RedisTemplate<String, String> redisTemplate, JwtUtil jwtUtil, EmailService emailService) {
+    public AuthService(UserRepository userRepository, RedisTemplate<String, String> redisTemplate, JwtUtil jwtUtil, EmailService emailService, MongoTemplate mongoTemplate) {
         this.userRepository = userRepository;
         this.redisTemplate = redisTemplate;
         this.jwtUtil = jwtUtil;
         this.emailService = emailService;
+        this.mongoTemplate = mongoTemplate;
     }
 
     public LoginResponse login(String email, String password, String codigoEmpresa) {
@@ -48,7 +54,7 @@ public class AuthService {
     }
 
     public void forgotPassword(String email) {
-        User user = userRepository.findByEmail(email)
+        userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         String token = jwtUtil.generateTokenWithExpiration(email, 15 * 60 * 1000);
@@ -59,14 +65,17 @@ public class AuthService {
     }
 
     public void resetPassword(String email, String newPassword) {
-        String token = redisTemplate.opsForValue().get("reset:" + email);
-        if (token == null) throw new RuntimeException("Email inválido ou expirado");
-
-        User user = userRepository.findByEmail(email)
+        userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        user.setPassword(newPassword);
-        userRepository.save(user);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("email").is(email));
+
+
+        Update update = new Update();
+        update.set("senha", newPassword);
+
+        mongoTemplate.updateFirst(query, update, User.class);
     }
 
 
